@@ -1,9 +1,22 @@
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
-from pip import locations
 import os
 import sys
 import setuptools
+from pip import locations
+
+
+# Determine whether the install is a user install
+is_user_install = "--user" in sys.argv[1:] 
+
+# create string-like object that is evaluated 
+# after pybind11 has been installed
+class get_pybind_include(object):
+
+    def __str__(self):
+        pybind_include = os.path.dirname(locations.distutils_scheme('pybind11',is_user_install)['headers'])
+        return pybind_include
+
 
 ext_modules = [
     Extension(
@@ -11,7 +24,7 @@ ext_modules = [
         ['py/main.cpp'],
         include_dirs=[
             # Path to pybind11 headers
-            os.path.dirname(locations.distutils_scheme('pybind11')['headers'])
+            get_pybind_include()
         ],
         language='c++',
     ),
